@@ -1,27 +1,85 @@
-pipleline {
-    agent any
-    stages {
-        stage('Git Checkout') {
-            steps {
-                git branch:"main",
-            url: "https://github.com/budetilakshmanaiosdev/devops-daily"
-            }
-        }
-        stage('Build') {
-            steps {
-                echo "Building App..."
-            }
-        }
-        stage('Docker Build') {
-            steps {
-                sh 'docker --version'
-                echo "Docker Setup Executed..."
-            }
-        }
-        stage('SonarQube Scan') {
-            steps {
-                echo "SonarQube Step simulated..."
-            }
-        }
+pipeline {
+  agent any
+
+  tools {
+    // Configure these tool names in Jenkins -> Global Tool Configuration
+    jdk 'jdk-11'       
+    maven 'maven-3.8'  
+  }
+
+  environment {
+    // Optional - set if you want artifact name/version handling
+    ARTIFACT = "java-app"
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
     }
+
+    stage('Build') {
+      steps {
+        echo "Running mvn clean package"
+        sh 'mvn -B clean package'
+      }
+      post {
+        success {
+          echo "Build succeeded"
+        }
+      }
+    }
+
+    stage('Unit Tests') {
+      steps {
+        echo "Running tests (mvn test)"
+        sh 'mvn -B test'
+      }
+      post {
+        always {
+          // Publish test results (adjust path if project outputs elsewhere)
+          junit '**/target/surefire-reports/*.xml'
+        }
+      }
+    }
+
+    stage('Archive') {
+      steps {
+        // Archive the produced JAR/WAR so it's available in Jenkins UI
+        archiveArtifacts artifacts: 'target/*.jar, target/*.war', fingerprint: true
+      }
+    }
+
+    stage('Simple Run (smoke)') {
+      steps {
+        // optional smoke test - attempt to run the jar (if it's a runnable jar)
+        // keep this safe for CI: run in background for short time and kill
+        sh '''
+          if ls target/*.jar 1> /dev/null 2>&1; then
+            JAR=$(ls target/*.jar | head -n1)
+            echo "Starting jar: $JAR (5s smoke run)"
+            nohup java -jar $JAR > /tmp/ci_app.log 2>&1 &
+            sleep 5
+            pkill -f "$JAR" || true
+            tail -n 50 /tmp/ci_app.log || true
+          else
+            echo "No runnable jar found; skipping smoke run."
+          fi
+        '''
+      }
+    }
+  }
+
+  post {
+    success {
+      echo "Pipeline finished SUCCESS"
+    }
+    failure {
+      echo "Pipeline FAILED"
+    }
+    always {
+      cleanWs()
+    }
+  }
 }
