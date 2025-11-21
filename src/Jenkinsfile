@@ -19,30 +19,31 @@ pipeline {
       }
     }
 
-    stage('Build') {
-      steps {
-        echo "Running mvn clean package"
-        sh 'mvn -B clean package'
-      }
-      post {
-        success {
-          echo "Build succeeded"
+  stage('Build') {
+    steps {
+        dir('src') {
+            echo "Running mvn clean package inside src/"
+            sh 'mvn -B clean package'
         }
-      }
     }
+}
+
 
     stage('Unit Tests') {
       steps {
-        echo "Running tests (mvn test)"
-        sh 'mvn -B test'
+       dir('src') {
+            echo "Running mvn test inside src/"
+            sh 'mvn -B test'
+        }
       }
       post {
         always {
           // Publish test results (adjust path if project outputs elsewhere)
-          junit '**/target/surefire-reports/*.xml'
+         junit 'src/**/target/surefire-reports/*.xml'
         }
       }
     }
+
 
     stage('Archive') {
       steps {
