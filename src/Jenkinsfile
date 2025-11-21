@@ -1,0 +1,27 @@
+pipleline {
+    agent any
+    stages {
+        stage('Git Checkout') {
+            steps {
+                git branch:"main",
+            url: "https://github.com/budetilakshmanaiosdev/devops-daily"
+            }
+        }
+        stage('Build') {
+            steps {
+                echo "Building App..."
+            }
+        }
+        stage('Docker Build') {
+            steps {
+                sh 'docker --version'
+                echo "Docker Setup Executed..."
+            }
+        }
+        stage('SonarQube Scan') {
+            steps {
+                echo "SonarQube Step simulated..."
+            }
+        }
+    }
+}
