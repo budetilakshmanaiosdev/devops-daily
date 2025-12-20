@@ -104,3 +104,24 @@ EOF
   100  cd aws-linux/
   101  ls
   102  history > cmd-history.txt 
+  103  git status
+  104  git commit -m "update with latest commands"
+  105  git add .
+  106  git commit -m "update with latest git commands"
+  107  git push -u origin main
+  108  git status
+  109  pwd
+  110  cat <<EOF >> ec2-shutdown-steps.txt
+# EC2 shutdown steps executed from local machine
+
+aws ec2 stop-instances --instance-ids <INSTANCE_ID>
+aws ec2 terminate-instances --instance-ids <INSTANCE_ID>
+
+# Note:
+# Stop = reversible
+# Terminate = permanent deletion
+EOF
+
+  111  history -a
+  112  git add .
+  113  history > cmd-history.txt 
