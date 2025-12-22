@@ -74,11 +74,6 @@ EOF
    70  git status
    71  git add aws-linux
    72  git commit -m "Add Amazon Linux EC2 command history"
-   73  git push origin master
-   74  git push origin main
-   75  git branch
-   76  git push origin master
-   77  git push main master
    78  git branch -m master main
    79  git push -u origin main
    80  git remote -y
