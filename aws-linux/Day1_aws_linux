@@ -96,3 +96,38 @@ Use these naturally:
 “Root is break-glass only.”
 “Security groups follow deny-by-default.”
 “If EC2 can’t assume a role, automation fails.”
+
+
+
+sudo usermod -aG wheel devops
+usermod	Modify an existing user
+-a	Append (don’t overwrite existing groups)
+-G	Add to supplementary group
+wheel	Admin (sudo) group
+devops	User being modified
+
+
+
+sudo vi /etc/ssh/sshd_config
+Configuration file for SSH daemon (sshd)
+Controls: Who can log in, How they authenticate, Security rules
+SSH reads this file on startup.
+
+Disable root login
+PermitRootLogin no
+Why:
+Root is a known username
+Attackers target it first
+Removes the most dangerous access path
+
+
+Disable password authentication
+PasswordAuthentication no
+Why:
+Passwords can be brute-forced
+SSH keys are cryptographically stronger
+Required for compliance
+
+After changes: sudo systemctl restart sshd
+Because: sshd only reads config at startup
+No restart = no effect
